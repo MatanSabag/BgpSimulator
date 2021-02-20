@@ -1,12 +1,5 @@
 package com.matansabag.bgpsim;
 
-import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_NONE;
-import static com.matansabag.bgpsim.Route.route_type.LEGITIMATE;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 public class RouteFilter {
 
   private final BGPGraph graph_;
@@ -16,14 +9,18 @@ public class RouteFilter {
 
   private static final int kMaxPathLength = 4;
 
-  public RouteFilter(BGPGraph graph, SortedASVector sorted_ases, boolean filter_by_length, boolean two_hop_filtering_extension) {
+  public RouteFilter(
+      BGPGraph graph,
+      SortedASVector sorted_ases,
+      boolean filter_by_length,
+      boolean two_hop_filtering_extension) {
     this.graph_ = graph;
     this.sorted_ases_ = sorted_ases;
     this.filter_by_length_ = filter_by_length;
     this.two_hop_filtering_extension_ = two_hop_filtering_extension;
   }
 
-  public boolean should_filter(int filtering_as, Route route)  {
+  public boolean should_filter(int filtering_as, Route route) {
     return should_filter(filtering_as, route, -1);
   }
 
@@ -40,7 +37,9 @@ public class RouteFilter {
     }
 
     // filter prefix hijacks
-    if (route.hijacked()) { return true; }
+    if (route.hijacked()) {
+      return true;
+    }
 
     // Validate that first hop is valid. // TODO: change this validation to iterate the route...
     if ((route.length() > 1) && (!graph_.get(dst_as).isNeighbour(route.getLastHop()))) {
@@ -48,7 +47,8 @@ public class RouteFilter {
     }
 
     if (two_hop_filtering_extension_) {
-      if ((route.length() > 2) && (!graph_.get(route.getLastHop()).isNeighbour(route.getBeforeLastHop()))) {
+      if ((route.length() > 2)
+          && (!graph_.get(route.getLastHop()).isNeighbour(route.getBeforeLastHop()))) {
         return true;
       }
     }
@@ -56,7 +56,7 @@ public class RouteFilter {
     int min_percentile = Math.min(sorted_ases_.get_as_rank_group(dst_as), filtering_as_percentile);
     // We force attackers to increasing path length, then enforce high limit on path length.
     if (filter_by_length_) {
-      if (route.length() + 1 > 7) { //7 threshold is probably best here..
+      if (route.length() + 1 > 7) { // 7 threshold is probably best here..
         return true;
       }
       if (graph_.are_ases_in_same_region(filtering_as, dst_as)) {
@@ -64,8 +64,7 @@ public class RouteFilter {
           if (route.length() + 1 > 5) {
             return true;
           }
-        }
-        else if (filtering_as_percentile <= 15) {
+        } else if (filtering_as_percentile <= 15) {
           if (route.length() + 1 > 6) {
             return true;
           }
@@ -81,7 +80,7 @@ public class RouteFilter {
     return false;
   }
 
-  public boolean did_adopter_lose_because_he_adopted(Route unfiltered_route, Route filtered_route){
+  public boolean did_adopter_lose_because_he_adopted(Route unfiltered_route, Route filtered_route) {
     return false; // @@ NOT IMPL
   }
 }

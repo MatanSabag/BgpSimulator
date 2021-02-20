@@ -13,6 +13,7 @@ public class Route {
     MALICIOUS,
     PREFIX_HIJACK
   };
+
   private Link_Type last_link_;
   private final List<Integer> as_list_;
   private route_type is_malicious_;
@@ -26,26 +27,36 @@ public class Route {
     this.is_malicious_ = is_malicious;
   }
 
-  Route(Route other){
+  Route(Route other) {
     this.last_link_ = other.last_link_;
     this.as_list_ = new ArrayList<>(other.as_list_);
     this.is_malicious_ = other.is_malicious_;
     this.optattr_protected = other.optattr_protected;
   }
 
-  int getDestAS()  { return as_list_.get(0); }
+  int getDestAS() {
+    return as_list_.get(0);
+  }
 
-  boolean malicious()  { return is_malicious_ != route_type.LEGITIMATE; }
+  boolean malicious() {
+    return is_malicious_ != route_type.LEGITIMATE;
+  }
 
-  boolean hijacked()  { return is_malicious_ == route_type.PREFIX_HIJACK; }
+  boolean hijacked() {
+    return is_malicious_ == route_type.PREFIX_HIJACK;
+  }
 
-  int length()  { return as_list_.size(); }
+  int length() {
+    return as_list_.size();
+  }
 
-  List<Integer> get_as_list()  { return as_list_; }
+  List<Integer> get_as_list() {
+    return as_list_;
+  }
 
   // Link_Type get_prev_link_type(int intermediate_as) const; FIXME ??
 
-  boolean from_same_neighbor(Route other){
+  boolean from_same_neighbor(Route other) {
     int this_neigh = getNeighbor();
     int other_neigh = other.getNeighbor();
     return this_neigh == other_neigh;
@@ -81,7 +92,7 @@ public class Route {
     }
 
     // final break..
-    return  as_list_.get(as_list_.size() - 2) > other.as_list_.get(as_list_.size() - 2);
+    return as_list_.get(as_list_.size() - 2) > other.as_list_.get(as_list_.size() - 2);
   }
 
   void append(int as_number, Link_Type link_type, BGPGraph graph) {
@@ -92,16 +103,16 @@ public class Route {
     }
   }
 
-  int getLastHop(){
+  int getLastHop() {
     return as_list_.get(0);
   }
 
-  int getBeforeLastHop(){
+  int getBeforeLastHop() {
     return as_list_.get(1);
   }
 
   public int getNeighbor() {
-    return as_list_.get(as_list_.size()-2);
+    return as_list_.get(as_list_.size() - 2);
   }
 
   // bool operator==(Route& Oother) const;
@@ -124,8 +135,6 @@ public class Route {
   }
 
   public String toString() {
-    return as_list_.stream().
-        map(Object::toString).
-        collect(Collectors.joining(", "));
+    return as_list_.stream().map(Object::toString).collect(Collectors.joining(", "));
   }
 }

@@ -12,15 +12,13 @@ public class SortedASVector {
     BY_PROVIDERS
   }
 
-  private static Map<Integer, AS > kPlainGraph;
+  private static Map<Integer, AS> kPlainGraph;
   private final List<Integer> as_vector_;
   private final COMPARISON_METHOD method_;
   private final Map<Integer, Integer> percentiles_;
   public static final int kResolution = 10000;
 
-
-  SortedASVector(List<Integer> as_vector, COMPARISON_METHOD method, Map<Integer,  AS> graph)
-   {
+  SortedASVector(List<Integer> as_vector, COMPARISON_METHOD method, Map<Integer, AS> graph) {
     this.as_vector_ = as_vector;
     this.method_ = method;
     kPlainGraph = graph;
@@ -29,7 +27,7 @@ public class SortedASVector {
     compute_ranks();
   }
 
-  public int get_as_rank_group(int as_number){
+  public int get_as_rank_group(int as_number) {
     return percentiles_.get(as_number);
   }
 
@@ -44,20 +42,20 @@ public class SortedASVector {
     }
   }
 
-
   private void sort_ases() {
     switch (method_) {
       case BY_CUSTOMERS:
-        as_vector_.sort((o1, o2) -> {
-          return compare_ases_by_customers(o1, o2) ? 1 : 0; // TODO CHECK
-        });
+        as_vector_.sort(
+            (o1, o2) -> {
+              return compare_ases_by_customers(o1, o2) ? 1 : 0; // TODO CHECK
+            });
         break;
       default:
         throw new IllegalArgumentException("unsupported sort method");
     }
   }
 
-  private static boolean compare_ases_by_customers(int as_a, int as_b){
+  private static boolean compare_ases_by_customers(int as_a, int as_b) {
     return compare_ases(as_a, as_b, COMPARISON_METHOD.BY_CUSTOMERS);
   }
 
@@ -67,19 +65,18 @@ public class SortedASVector {
         case BY_NUMBER:
           return as_a > as_b;
         case BY_CUSTOMERS:
-          return kPlainGraph.get(as_a).customers().size() > kPlainGraph.get(as_b).customers()
-              .size();
+          return kPlainGraph.get(as_a).customers().size()
+              > kPlainGraph.get(as_b).customers().size();
         case BY_PEERS:
           return kPlainGraph.get(as_a).peers().size() > kPlainGraph.get(as_b).peers().size();
         case BY_PROVIDERS:
-          return kPlainGraph.get(as_a).providers().size() > kPlainGraph.get(as_b).providers()
-              .size();
+          return kPlainGraph.get(as_a).providers().size()
+              > kPlainGraph.get(as_b).providers().size();
       }
       return false;
-    } catch (Exception e){
+    } catch (Exception e) {
       System.out.println(e);
     }
     return false;
   }
-
 }
