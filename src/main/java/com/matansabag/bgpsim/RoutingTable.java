@@ -17,12 +17,12 @@ public class RoutingTable {
     ADVERTISE_TO_CUSTOMER,
     ADVERTISE_TO_PEER,
     ADVERTISE_TO_PROVIDER
-  };
+  }
 
   private final int as_number_;
   private final BGPGraph graph_;
-  private int my_percentile_;
-  private RouteFilter filter_;
+  private final int my_percentile_;
+  private final RouteFilter filter_;
   private final Map<Integer, List<Route>> routing_table_;
   private final Map<Integer, Boolean> heard_legitimate_path_;
   // dst as_number -> provider AS -> route

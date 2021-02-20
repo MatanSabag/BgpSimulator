@@ -43,7 +43,7 @@ public class BGPGraph {
     LINK_TO_CUSTOMER,
     LINK_TO_PEER,
     LINK_TO_PROVIDER
-  };
+  }
 
   public Map<Integer, AS> get_plain() {
     return graph;
@@ -403,13 +403,14 @@ public class BGPGraph {
 
   void parse_regions(String input_file) {
     try {
-      LineIterator it = FileUtils.lineIterator(Paths.get(input_file).toFile(), "UTF-8");
-      try {
+      try (LineIterator it = FileUtils.lineIterator(Paths.get(input_file).toFile(), "UTF-8")) {
         while (it.hasNext()) {
           String line = it.nextLine();
-          if (line.length() == 0) continue;
+          if (line.length() == 0)
+            continue;
           String[] tokens = line.split(",");
-          if (tokens.length < 2) continue;
+          if (tokens.length < 2)
+            continue;
           String as_range = tokens[0];
           String as_region = tokens[1];
           RIR region;
@@ -452,8 +453,6 @@ public class BGPGraph {
             System.out.println("x"); // TODO
           }
         }
-      } finally {
-        it.close();
       }
     } catch (IOException e) {
       e.printStackTrace();

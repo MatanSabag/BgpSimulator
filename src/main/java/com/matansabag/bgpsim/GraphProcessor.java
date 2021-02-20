@@ -19,7 +19,7 @@ public class GraphProcessor {
   enum PATH_TYPE {
     LEGITIMATE,
     MALICIOUS
-  };
+  }
 
   private final BGPGraph graph_;
   // mutable mutex lock_;

@@ -12,7 +12,7 @@ public class Route {
     LEGITIMATE,
     MALICIOUS,
     PREFIX_HIJACK
-  };
+  }
 
   private Link_Type last_link_;
   private final List<Integer> as_list_;

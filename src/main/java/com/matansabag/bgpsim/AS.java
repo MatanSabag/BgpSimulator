@@ -8,13 +8,13 @@ public class AS {
     AS_LEGACY,
     AS_MALICIOUS,
     AS_ADOPTER
-  };
+  }
 
   enum AS_DISCARD_OPTATTR {
     PASS,
     DISCARD_OPTATTR,
     DISCARD_PREFIX
-  };
+  }
 
   enum RIR {
     ALL,
@@ -29,7 +29,7 @@ public class AS {
     STUBS,
     BIGGEST_CPS,
     OTHER
-  };
+  }
 
   private static final int LARGE_CUSTOMERS = 250;
   private static final int MEDIUM_CUSTOMERS = 25;
@@ -52,19 +52,19 @@ public class AS {
 
   Set<Integer> customers() {
     return customers;
-  };
+  }
 
   Set<Integer> peers() {
     return peers;
-  };
+  }
 
   Set<Integer> providers() {
     return providers;
-  };
+  }
 
   Set<Integer> neighbours() {
     return neighbours;
-  };
+  }
 
   int number() {
     return number;
