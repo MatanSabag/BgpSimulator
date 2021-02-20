@@ -53,6 +53,120 @@ public class GraphProcessor {
     RoutingTable.set_sorted_ases(sorted_ases_);
   }
 
+  Map<Integer, RoutingTable> pathsToDest(int dest_as_number) {
+    Queue<Integer> q = new LinkedList<>();
+    Map<Integer, RoutingTable> route_tables = new HashMap<>();
+    Set<Integer> in_queue = new HashSet<>();
+
+    // insert the destination to processing queue
+    route_tables.put(
+        dest_as_number, new RoutingTable(dest_as_number, graph_, filter_two_neighbours_, true));
+    in_queue.add(dest_as_number);
+    q.add(dest_as_number);
+    while (!q.isEmpty()) {
+      int current = q.peek();
+      AS currAS = graph_.get(current);
+      q.poll();
+      in_queue.remove(current);
+
+      // iterate customers
+      Route optional_route =
+          route_tables
+              .get(currAS.number())
+              .get_route_or_null(dest_as_number, ADVERTISEMENT_DEST.ADVERTISE_TO_CUSTOMER);
+      boolean prot_prev;
+      if (optional_route != null) {
+        prot_prev = optional_route.optattr_protected;
+        if (optional_route.optattr_protected && currAS.optattr_discard_attr()) {
+          // cout << "Discarding the opt attribute\n";
+          optional_route.optattr_protected = false;
+        } // else
+        // cout << "NOT Discarding the opt attribute\n";
+
+        for (Integer customer : currAS.customers()) {
+
+          if ((customer == dest_as_number)) {
+            continue;
+          }
+          if (!route_tables.containsKey(customer)) {
+            route_tables.put(customer, new RoutingTable(customer, graph_, filter_two_neighbours_));
+          }
+          if (route_tables.get(customer).consider_new_route(optional_route, LINK_TO_PROVIDER)) {
+            if (!in_queue.contains(customer)) {
+              q.add(customer);
+              in_queue.add(customer);
+            }
+          }
+        }
+        optional_route.optattr_protected = prot_prev;
+      }
+
+      // iterate peers
+      optional_route =
+          route_tables
+              .get(currAS.number())
+              .get_route_or_null(dest_as_number, ADVERTISEMENT_DEST.ADVERTISE_TO_PEER);
+
+      if (optional_route != null) {
+        prot_prev = optional_route.optattr_protected;
+        if (optional_route.optattr_protected && currAS.optattr_discard_attr()) {
+          optional_route.optattr_protected = false;
+          // cout << "Discarding the opt attribute\n";
+        } // else
+        // cout << "NOT Discarding the opt attribute\n";
+
+        for (Integer peer : currAS.peers()) {
+
+          if ((peer == dest_as_number)) {
+            continue;
+          }
+          if (!route_tables.containsKey(peer)) {
+            route_tables.put(peer, new RoutingTable(peer, graph_, filter_two_neighbours_));
+          }
+          if ((route_tables).get(peer).consider_new_route(optional_route, LINK_TO_PEER)) {
+            if (!in_queue.contains(peer)) {
+              q.add(peer);
+              in_queue.add(peer);
+            }
+          }
+        }
+        optional_route.optattr_protected = prot_prev;
+      }
+
+      // iterate providers
+      optional_route =
+          route_tables
+              .get(currAS.number())
+              .get_route_or_null(dest_as_number, ADVERTISEMENT_DEST.ADVERTISE_TO_PROVIDER);
+
+      if (optional_route != null) {
+        prot_prev = optional_route.optattr_protected;
+        if (optional_route.optattr_protected && currAS.optattr_discard_attr()) {
+          optional_route.optattr_protected = false;
+          // cout << "Discarding the opt attribute\n";
+        } // else
+        // cout << "NOT Discarding the opt attribute\n";
+
+        for (Integer provider : currAS.providers()) {
+          if ((provider == dest_as_number)) {
+            continue;
+          }
+          if (!route_tables.containsKey(provider)) {
+            route_tables.put(provider, new RoutingTable(provider, graph_, filter_two_neighbours_));
+          }
+          if ((route_tables).get(provider).consider_new_route(optional_route, LINK_TO_CUSTOMER)) {
+            if (!in_queue.contains(provider)) {
+              q.add(provider);
+              in_queue.add(provider);
+            }
+          }
+        }
+        optional_route.optattr_protected = prot_prev;
+      }
+    }
+    return route_tables;
+  }
+
   Map<Integer, RoutingTable> Dijekstra(
       int dest_as_number,
       int attacker_as_number,
@@ -67,8 +181,7 @@ public class GraphProcessor {
 
     // insert the destination to processing queue
     route_tables.put(
-        dest_as_number,
-        new RoutingTable(dest_as_number, graph_, filter_by_length, filter_two_neighbours_, true));
+        dest_as_number, new RoutingTable(dest_as_number, graph_, filter_two_neighbours_, true));
     in_queue.add(dest_as_number);
 
     // insert the attacker to processing queue
@@ -213,6 +326,7 @@ public class GraphProcessor {
     }
     return route_tables;
   }
+
   // Map<Integer, shared_ptr<RoutingTable> >* Dijekstra_avichai(int dst_as_number, int
   // attacker_as_number, int hops, boolean filter_by_length) const;
   double analyze_attacker_success(

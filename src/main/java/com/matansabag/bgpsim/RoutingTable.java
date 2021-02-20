@@ -21,7 +21,6 @@ public class RoutingTable {
 
   private final int as_number_;
   private final BGPGraph graph_;
-  private final boolean filter_by_length_;
   private int my_percentile_;
   private RouteFilter filter_;
   private final Map<Integer, List<Route>> routing_table_;
@@ -31,22 +30,16 @@ public class RoutingTable {
   Map<Integer, Map<Integer, Route>> alt_routes_ = new HashMap<>();
   private static SortedASVector kSortedAses = null;
 
-  public RoutingTable(
-      int as_number, BGPGraph graph, boolean filter_by_length, boolean filter_two_neighbours) {
-    this(as_number, graph, filter_by_length, filter_two_neighbours, false);
+  public RoutingTable(int as_number, BGPGraph graph, boolean filter_two_neighbours) {
+    this(as_number, graph, filter_two_neighbours, false);
   }
 
   public RoutingTable(
-      int as_number,
-      BGPGraph graph,
-      boolean filter_by_length,
-      boolean filter_two_neighbours,
-      boolean is_real_dst) {
+      int as_number, BGPGraph graph, boolean filter_two_neighbours, boolean is_real_dst) {
     this.as_number_ = as_number;
     this.graph_ = graph;
-    this.filter_by_length_ = filter_by_length;
     this.my_percentile_ = kSortedAses.get_as_rank_group(as_number_);
-    this.filter_ = new RouteFilter(graph, kSortedAses, filter_by_length, filter_two_neighbours);
+    this.filter_ = new RouteFilter(graph, kSortedAses, filter_two_neighbours);
     this.routing_table_ = new HashMap<>();
     this.heard_legitimate_path_ = new HashMap<>();
     if (is_real_dst) {

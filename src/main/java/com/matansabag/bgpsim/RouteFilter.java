@@ -10,13 +10,10 @@ public class RouteFilter {
   private static final int kMaxPathLength = 4;
 
   public RouteFilter(
-      BGPGraph graph,
-      SortedASVector sorted_ases,
-      boolean filter_by_length,
-      boolean two_hop_filtering_extension) {
+      BGPGraph graph, SortedASVector sorted_ases, boolean two_hop_filtering_extension) {
     this.graph_ = graph;
     this.sorted_ases_ = sorted_ases;
-    this.filter_by_length_ = filter_by_length;
+    this.filter_by_length_ = false; // TODO removing this from the code
     this.two_hop_filtering_extension_ = two_hop_filtering_extension;
   }
 
