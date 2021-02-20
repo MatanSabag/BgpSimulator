@@ -21,39 +21,35 @@ import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 
 public class BGPGraph {
+  // Constants
   private static final int LARGE_CUSTOMERS = 250;
   private static final int MEDIUM_CUSTOMERS = 25;
-  private static String kASRelationshipsFile =
-      "/Users/matans/disco/bgp-sim/data/20190801.as-rel.txt";
-  private static String kASRegionsFile = "/Users/matans/disco/bgp-sim/data/as-numbers-1.csv";
-  private static String kASRegionsFile32bit = "/Users/matans/disco/bgp-sim/data/as-numbers-2.csv";
-  private static String kASExtraRelationshipsFile =
-      "/Users/matans/disco/bgp-sim/data/AS_link_extended.txt";
-  private static String kASExtraRelationshipsCaidaFile =
-      "/Users/matans/disco/bgp-sim/data/mlp-Dec-2014.txt";
-  private static String kVantagePointsFile =
-      "/Users/matans/disco/bgp-sim/data/vantage-points-list.txt";
-  private final Map<Integer, AS> graph = new ConcurrentHashMap<>();
   // public static Map<Integer, AS> kPlainGraph; Needed for deploy()
-  public List<Integer> vantage_points = new ArrayList<>();
-  private final Map<RIR, Set<Integer>> regions_ = new ConcurrentHashMap<>();
-
+  // type of link in the graph
   enum Link_Type {
     LINK_NONE,
     LINK_TO_CUSTOMER,
     LINK_TO_PEER,
-    LINK_TO_PROVIDER
+    LINK_TO_PROVIDER;
   }
+  // members
+  private final List<Integer> vantage_points = new ArrayList<>();
+  private final Map<Integer, AS> graph = new ConcurrentHashMap<>();
+  private final Map<RIR, Set<Integer>> regions_ = new ConcurrentHashMap<>();
 
   public Map<Integer, AS> get_plain() {
     return graph;
   }
 
-  public BGPGraph(boolean additional_links) {
-    this(additional_links, "/Users/matans/disco/bgp-sim/data/20190801.as-rel.txt");
-  }
 
-  public BGPGraph(boolean additional_links, String infile) {
+  private BGPGraph(
+      boolean additionalLinks,
+      String infile,
+      String kASRegionsFile,
+      String kASRegionsFile32bit,
+      String kASExtraRelationshipsFile,
+      String kASExtraRelationshipsCaidaFile,
+      String kVantagePointsFile) {
     regions_.put(ALL, new HashSet<>());
     try {
       LineIterator it = FileUtils.lineIterator(Paths.get(infile).toFile(), "UTF-8");
@@ -91,10 +87,10 @@ public class BGPGraph {
       throw new IllegalStateException("No relations file 1");
     }
 
-    if (additional_links) {
-      create_additional_caida_links();
+    if (additionalLinks) {
+      create_additional_caida_links(kASExtraRelationshipsCaidaFile);
     }
-    parse_regions();
+    parse_regions(kASRegionsFile, kASRegionsFile32bit);
     // set_size_regions();
     set_biggest_cps();
     read_vantage_points(kVantagePointsFile);
@@ -125,7 +121,7 @@ public class BGPGraph {
     System.out.println();
   }
 
-  private void create_additional_caida_links() {
+  private void create_additional_caida_links(String kASExtraRelationshipsCaidaFile) {
     try {
       LineIterator it =
           FileUtils.lineIterator(Paths.get(kASExtraRelationshipsCaidaFile).toFile(), "UTF-8");
@@ -174,7 +170,7 @@ public class BGPGraph {
   //
   // std::vector<int> vantage_points;
 
-  private void create_additional_links() {
+  private void create_additional_links(String kASExtraRelationshipsFile) {
     // TODO
   }
 
@@ -395,7 +391,7 @@ public class BGPGraph {
     }
   }
 
-  void parse_regions() {
+  void parse_regions(String kASRegionsFile, String kASRegionsFile32bit) {
     parse_regions(kASRegionsFile);
     parse_regions(kASRegionsFile32bit);
     reverse_map_regions();
@@ -406,11 +402,9 @@ public class BGPGraph {
       try (LineIterator it = FileUtils.lineIterator(Paths.get(input_file).toFile(), "UTF-8")) {
         while (it.hasNext()) {
           String line = it.nextLine();
-          if (line.length() == 0)
-            continue;
+          if (line.length() == 0) continue;
           String[] tokens = line.split(",");
-          if (tokens.length < 2)
-            continue;
+          if (tokens.length < 2) continue;
           String as_range = tokens[0];
           String as_region = tokens[1];
           RIR region;
@@ -545,4 +539,61 @@ public class BGPGraph {
   // 		const std::string &s, std::vector<std::string> &elems, char token);
 
   // };
+
+  public static class BGPGraphBuilder {
+
+    private boolean additionalLinks;
+    private String infile;
+    private String kASRegionsFile;
+    private String kASRegionsFile32bit;
+    private String kASExtraRelationshipsFile;
+    private String kASExtraRelationshipsCaidaFile;
+    private String kVantagePointsFile;
+
+    BGPGraphBuilder withAdditionalLinks(boolean additionalLinks) {
+      this.additionalLinks = additionalLinks;
+      return this;
+    }
+
+    BGPGraphBuilder withInfile(String infile) {
+      this.infile = infile;
+      return this;
+    }
+
+    BGPGraphBuilder withKASRegionsFile(String kASRegionsFile) {
+      this.kASRegionsFile = kASRegionsFile;
+      return this;
+    }
+
+    BGPGraphBuilder withKASRegionsFile32bit(String kASRegionsFile32bit) {
+      this.kASRegionsFile32bit = kASRegionsFile32bit;
+      return this;
+    }
+
+    BGPGraphBuilder withKASExtraRelationshipsFile(String kASExtraRelationshipsFile) {
+      this.kASExtraRelationshipsFile = kASExtraRelationshipsFile;
+      return this;
+    }
+
+    BGPGraphBuilder withKASExtraRelationshipsCaidaFile(String kASExtraRelationshipsCaidaFile) {
+      this.kASExtraRelationshipsCaidaFile = kASExtraRelationshipsCaidaFile;
+      return this;
+    }
+
+    BGPGraphBuilder withKVantagePointsFile(String kVantagePointsFile) {
+      this.kVantagePointsFile = kVantagePointsFile;
+      return this;
+    }
+
+    BGPGraph build() {
+      return new BGPGraph(
+          additionalLinks,
+          infile,
+          kASRegionsFile,
+          kASRegionsFile32bit,
+          kASExtraRelationshipsFile,
+          kASExtraRelationshipsCaidaFile,
+          kVantagePointsFile);
+    }
+  }
 }
