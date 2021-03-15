@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -316,6 +317,10 @@ public class BGPGraph {
     return graph.get(as_number);
   }
 
+  public Collection<AS> get_all_ases() {
+     return graph.values();
+  }
+
   public List<Integer> get_all_ases(RIR region) {
 
     /*
@@ -444,7 +449,7 @@ public class BGPGraph {
               }
             }
           } catch (Exception e) {
-            System.out.println("x"); // TODO
+            // System.out.println("x"); // TODO
           }
         }
       }

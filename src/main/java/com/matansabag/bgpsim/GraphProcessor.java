@@ -4,6 +4,8 @@ import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_CUSTOMER;
 import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_PEER;
 import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_PROVIDER;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.matansabag.bgpsim.AS.RIR;
 import com.matansabag.bgpsim.RoutingTable.ADVERTISEMENT_DEST;
 import com.matansabag.bgpsim.SortedASVector.COMPARISON_METHOD;
@@ -45,12 +47,29 @@ public class GraphProcessor {
       BGPGraph graph, RIR attackers_region, RIR victims_region, boolean filter_two_neighbours) {
     this.graph_ = graph;
     this.all_ases_ = graph_.get_all_ases(RIR.ALL);
-    this.sorted_ases_ =
-        new SortedASVector(all_ases_, COMPARISON_METHOD.BY_CUSTOMERS, graph.get_plain());
+    this.sorted_ases_ = new SortedASVector(all_ases_, COMPARISON_METHOD.BY_CUSTOMERS, graph.get_plain());
     this.attackers_region_ = attackers_region;
     this.victims_region_ = victims_region;
     this.filter_two_neighbours_ = filter_two_neighbours;
     RoutingTable.set_sorted_ases(sorted_ases_);
+  }
+
+  Table<Integer, Integer, Route> completeRoutingMap(){
+    return pathsToDestinations(graph_.get_plain().keySet());
+  }
+
+  Table<Integer, Integer, Route> pathsToDestinations(Set<Integer> destinations){
+    Table<Integer, Integer, Route> sourceToDestRoutes = HashBasedTable.create();
+    for (Integer destination : destinations) {
+      Map<Integer, RoutingTable> integerRoutingTableMap = pathsToDest(destination);
+      for (Map.Entry<Integer, RoutingTable> integerRoutingTableEntry : integerRoutingTableMap.entrySet()) {
+        sourceToDestRoutes.put(
+            integerRoutingTableEntry.getKey(),
+            destination,
+            integerRoutingTableEntry.getValue().get_my_route_or_null(destination));
+      }
+    }
+    return sourceToDestRoutes;
   }
 
   Map<Integer, RoutingTable> pathsToDest(int dest_as_number) {
