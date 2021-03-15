@@ -1,13 +1,11 @@
 package com.matansabag.bgpsim;
 
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
 import com.matansabag.bgpsim.AS.RIR;
 import com.matansabag.bgpsim.BGPGraph.BGPGraphBuilder;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class BgpMain {
@@ -22,7 +20,7 @@ public class BgpMain {
   private static String kVantagePointsFile =
       "/Users/matans/disco/bgp-sim/data/vantage-points-list.txt";
 
-  GraphProcessor createGraphProcessor(){
+  GraphProcessor createGraphProcessor() {
     BGPGraph graph =
         new BGPGraphBuilder()
             .withAdditionalLinks(false)

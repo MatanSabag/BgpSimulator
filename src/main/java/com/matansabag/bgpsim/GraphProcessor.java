@@ -47,22 +47,26 @@ public class GraphProcessor {
       BGPGraph graph, RIR attackers_region, RIR victims_region, boolean filter_two_neighbours) {
     this.graph_ = graph;
     this.all_ases_ = graph_.get_all_ases(RIR.ALL);
-    this.sorted_ases_ = new SortedASVector(all_ases_, COMPARISON_METHOD.BY_CUSTOMERS, graph.get_plain());
+    this.sorted_ases_ =
+        new SortedASVector(all_ases_, COMPARISON_METHOD.BY_CUSTOMERS, graph.get_plain());
     this.attackers_region_ = attackers_region;
     this.victims_region_ = victims_region;
     this.filter_two_neighbours_ = filter_two_neighbours;
     RoutingTable.set_sorted_ases(sorted_ases_);
   }
 
-  Table<Integer, Integer, Route> completeRoutingMap(){
+  Table<Integer, Integer, Route> completeRoutingMap() {
     return pathsToDestinations(graph_.get_plain().keySet());
   }
 
-  Table<Integer, Integer, Route> pathsToDestinations(Set<Integer> destinations){
+  Table<Integer, Integer, Route> pathsToDestinations(Set<Integer> destinations) {
     Table<Integer, Integer, Route> sourceToDestRoutes = HashBasedTable.create();
+    System.out.println("calculating paths to " + destinations.size() + " destinations");
+    int i = 0;
     for (Integer destination : destinations) {
       Map<Integer, RoutingTable> integerRoutingTableMap = pathsToDest(destination);
-      for (Map.Entry<Integer, RoutingTable> integerRoutingTableEntry : integerRoutingTableMap.entrySet()) {
+      for (Map.Entry<Integer, RoutingTable> integerRoutingTableEntry :
+          integerRoutingTableMap.entrySet()) {
         sourceToDestRoutes.put(
             integerRoutingTableEntry.getKey(),
             destination,

@@ -42,7 +42,6 @@ public class BGPGraph {
     return graph;
   }
 
-
   private BGPGraph(
       boolean additionalLinks,
       String infile,
@@ -318,7 +317,7 @@ public class BGPGraph {
   }
 
   public Collection<AS> get_all_ases() {
-     return graph.values();
+    return graph.values();
   }
 
   public List<Integer> get_all_ases(RIR region) {
