@@ -17,9 +17,9 @@ public class RouteFilter {
     this.two_hop_filtering_extension_ = two_hop_filtering_extension;
   }
 
-  public boolean should_filter(int filtering_as, Route route) {
-    return should_filter(filtering_as, route, -1);
-  }
+  // public boolean should_filter(int filtering_as, Route route) {
+  //   return should_filter(filtering_as, route, -1);
+  // }
 
   public boolean should_filter(int filtering_as, Route route, int filtering_as_percentile) {
     // Adopter AS can also validate
@@ -34,9 +34,9 @@ public class RouteFilter {
     }
 
     // filter prefix hijacks
-    if (route.hijacked()) {
-      return true;
-    }
+    // if (route.hijacked()) {
+    //   return true;
+    // }
 
     // Validate that first hop is valid. // TODO: change this validation to iterate the route...
     if ((route.length() > 1) && (!graph_.get(dst_as).isNeighbour(route.getLastHop()))) {

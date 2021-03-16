@@ -27,7 +27,7 @@ public class SortedASVector {
     compute_ranks();
   }
 
-  public int get_as_rank_group(int as_number) {
+  public Integer get_as_rank_group(Integer as_number) {
     return percentiles_.get(as_number);
   }
 
@@ -55,15 +55,15 @@ public class SortedASVector {
     }
   }
 
-  private static boolean compare_ases_by_customers(int as_a, int as_b) {
+  private static boolean compare_ases_by_customers(Integer as_a, Integer as_b) {
     return compare_ases(as_a, as_b, COMPARISON_METHOD.BY_CUSTOMERS);
   }
 
-  private static boolean compare_ases(int as_a, int as_b, COMPARISON_METHOD method) {
+  private static boolean compare_ases(Integer as_a, Integer as_b, COMPARISON_METHOD method) {
     try {
       switch (method) {
         case BY_NUMBER:
-          return as_a > as_b;
+          return as_a.intValue() > as_b.intValue();
         case BY_CUSTOMERS:
           return kPlainGraph.get(as_a).customers().size()
               > kPlainGraph.get(as_b).customers().size();

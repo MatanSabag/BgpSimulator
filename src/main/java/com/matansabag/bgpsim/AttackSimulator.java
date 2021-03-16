@@ -44,7 +44,7 @@ public class AttackSimulator {
     for (Integer reflector : reflectors) {
       for (Integer attacker : allAsns) {
         for (Integer victim : victims) {
-          int tripletRes = checkTriplet(attacker, reflector, victim, gp, dotsServers);
+          Integer tripletRes = checkTriplet(attacker, reflector, victim, gp, dotsServers);
           if (tripletRes <= 0) {
             res.add(tripletRes);
           } else {
@@ -72,7 +72,7 @@ public class AttackSimulator {
   // -1 - irrelevant
   // -2 - missing route attacker to reflector
   // 0 - spoofed (check that AS0 is gone)
-  private int checkTriplet(
+  private Integer checkTriplet(
       Integer attacker,
       Integer reflector,
       Integer victim,
@@ -111,12 +111,12 @@ public class AttackSimulator {
         numFailed++;
         return -2;
       }
-      int beforeLastHopVictim = route.getBeforeLastHop();
-      int beforeLastHopAttacker =
+      Integer beforeLastHopVictim = route.getBeforeLastHop();
+      Integer beforeLastHopAttacker =
           attackerToReflectorRoute
               .get_as_list()
               .get(attackerToReflectorRoute.get_as_list().indexOf(dotServer) + 1);
-      if (beforeLastHopAttacker != beforeLastHopVictim) {
+      if (!beforeLastHopAttacker.equals(beforeLastHopVictim)) {
         mitigated = true;
         mitigationAs = dotServer;
         break;

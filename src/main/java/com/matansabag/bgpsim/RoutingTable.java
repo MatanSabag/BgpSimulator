@@ -5,7 +5,6 @@ import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_PEER;
 import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_PROVIDER;
 
 import com.matansabag.bgpsim.BGPGraph.Link_Type;
-import com.matansabag.bgpsim.Route.route_type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +44,7 @@ public class RoutingTable {
     if (is_real_dst) {
       List<Integer> self_route = new ArrayList<>();
       self_route.add(as_number_);
-      Route my_self_route = new Route(LINK_NONE, self_route, route_type.LEGITIMATE);
+      Route my_self_route = new Route(LINK_NONE, self_route);
       my_self_route.optattr_protected = true;
       routing_table_.put(as_number, new ArrayList<>());
       routing_table_.get(as_number).add(my_self_route);
@@ -77,7 +76,7 @@ public class RoutingTable {
     Route appended_route = new Route(new_route);
     //	cout << "consider_new_route appended_route->optattr_protected " <<
     // appended_route->optattr_protected << "\n";
-    appended_route.append(as_number_, link_type, graph_);
+    appended_route.append(as_number_, link_type);
     // store this route as an alternative from the neighbor,
     // we might use is later if we receive a better route that is later withdrawn
 
