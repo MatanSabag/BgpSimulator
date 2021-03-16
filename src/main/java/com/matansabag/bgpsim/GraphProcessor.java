@@ -5,7 +5,6 @@ import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_PEER;
 import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_PROVIDER;
 
 
-import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.collect.HashBasedTable;
@@ -23,49 +22,42 @@ import java.util.Set;
 
 public class GraphProcessor {
 
-  public final LoadingCache<Integer, Map<Integer, RoutingTable>> cache;
+  // enum PATH_TYPE {
+  //   LEGITIMATE,
+  //   MALICIOUS
+  // }
 
-  enum PATH_TYPE {
-    LEGITIMATE,
-    MALICIOUS
-  }
-
+  private final LoadingCache<Integer, Map<Integer, RoutingTable>> cache;
   private final BGPGraph graph_;
-  // mutable mutex lock_;
-  private final List<Integer> all_ases_;
-  private final SortedASVector sorted_ases_;
-  private final RIR attackers_region_;
-  private final RIR victims_region_;
-  private final boolean filter_two_neighbours_;
+  // private final RIR attackers_region_;
+  // private final RIR victims_region_;
   // protected
-  int vp_all_ = 0;
-  int noattack_vp_all_ = 0;
-  int vp_fooled_ = 0;
-  int noattack_vp_fooled_ = 0;
-  int vp_optattr_ = 0;
-  int noattack_vp_optattr_ = 0;
+  // int vp_all_ = 0;
+  // int noattack_vp_all_ = 0;
+  // int vp_fooled_ = 0;
+  // int noattack_vp_fooled_ = 0;
+  // int vp_optattr_ = 0;
+  // int noattack_vp_optattr_ = 0;
   // Map<Integer, Integer> distance_Map_hijack_;
   // Map<Integer, Integer> distance_Map_legit_;
   // List<Double> results_ = new ArrayList<>(); // [2];
   // List< List < List <Double> > > path_lengths_ = new ArrayList<>();// path_lengths_[2];
   // List< List <Double> > path_diffs_;
 
-  GraphProcessor(
-      BGPGraph graph, RIR attackers_region, RIR victims_region, boolean filter_two_neighbours) {
+  GraphProcessor(BGPGraph graph) {
     this.graph_ = graph;
-    this.all_ases_ = graph_.get_all_ases(RIR.ALL);
-    this.sorted_ases_ =
-        new SortedASVector(all_ases_, COMPARISON_METHOD.BY_CUSTOMERS, graph.get_plain());
-    this.attackers_region_ = attackers_region;
-    this.victims_region_ = victims_region;
-    this.filter_two_neighbours_ = filter_two_neighbours;
+    // mutable mutex lock_;
+    List<Integer> all_ases_ = graph_.get_all_ases(RIR.ALL);
+    SortedASVector sorted_ases_ = new SortedASVector(all_ases_, COMPARISON_METHOD.BY_CUSTOMERS,
+        graph.get_plain());
+    // this.attackers_region_ = attackers_region;
+    // this.victims_region_ = victims_region;
     RoutingTable.set_sorted_ases(sorted_ases_);
-
     this.cache = Caffeine
         .newBuilder()
         .initialCapacity(400)
         .maximumSize(400)
-        .build(key -> GraphProcessor.pathsToDestStatic(key, graph_, filter_two_neighbours_));
+        .build(key -> GraphProcessor.pathsToDestStatic(key, graph_));
 
   }
 
@@ -76,7 +68,6 @@ public class GraphProcessor {
   Table<Integer, Integer, Route> pathsToDestinations(Set<Integer> destinations) {
     Table<Integer, Integer, Route> sourceToDestRoutes = HashBasedTable.create();
     System.out.println("calculating paths to " + destinations.size() + " destinations");
-    int i = 0;
     for (Integer destination : destinations) {
       Map<Integer, RoutingTable> integerRoutingTableMap = pathsToDest(destination);
       for (Map.Entry<Integer, RoutingTable> integerRoutingTableEntry :
@@ -90,14 +81,14 @@ public class GraphProcessor {
     return sourceToDestRoutes;
   }
 
-  static Map<Integer, RoutingTable> pathsToDestStatic(int dest_as_number, BGPGraph graph_, boolean filter_two_neighbours_) {
+  static Map<Integer, RoutingTable> pathsToDestStatic(int dest_as_number, BGPGraph graph_) {
     Queue<Integer> q = new LinkedList<>();
     Map<Integer, RoutingTable> route_tables = new HashMap<>();
     Set<Integer> in_queue = new HashSet<>();
 
     // insert the destination to processing queue
     route_tables.put(
-        dest_as_number, new RoutingTable(dest_as_number, graph_, filter_two_neighbours_, true));
+        dest_as_number, new RoutingTable(dest_as_number, graph_, false, true));
     in_queue.add(dest_as_number);
     q.add(dest_as_number);
     while (!q.isEmpty()) {
@@ -126,7 +117,7 @@ public class GraphProcessor {
             continue;
           }
           if (!route_tables.containsKey(customer)) {
-            route_tables.put(customer, new RoutingTable(customer, graph_, filter_two_neighbours_));
+            route_tables.put(customer, new RoutingTable(customer, graph_, false));
           }
           if (route_tables.get(customer).consider_new_route(optional_route, LINK_TO_PROVIDER)) {
             if (!in_queue.contains(customer)) {
@@ -158,7 +149,7 @@ public class GraphProcessor {
             continue;
           }
           if (!route_tables.containsKey(peer)) {
-            route_tables.put(peer, new RoutingTable(peer, graph_, filter_two_neighbours_));
+            route_tables.put(peer, new RoutingTable(peer, graph_, false));
           }
           if ((route_tables).get(peer).consider_new_route(optional_route, LINK_TO_PEER)) {
             if (!in_queue.contains(peer)) {
@@ -189,7 +180,7 @@ public class GraphProcessor {
             continue;
           }
           if (!route_tables.containsKey(provider)) {
-            route_tables.put(provider, new RoutingTable(provider, graph_, filter_two_neighbours_));
+            route_tables.put(provider, new RoutingTable(provider, graph_, false));
           }
           if ((route_tables).get(provider).consider_new_route(optional_route, LINK_TO_CUSTOMER)) {
             if (!in_queue.contains(provider)) {
@@ -218,10 +209,10 @@ public class GraphProcessor {
     return routingTable == null ?  null : routingTable.get_my_route_or_null(to);
   }
 
-  // Map<Integer, shared_ptr<RoutingTable> >* Dijekstra_avichai(int dst_as_number, int
-  // attacker_as_number, int hops, boolean filter_by_length) const;
-  double analyze_attacker_success(
-      Map<Integer, RoutingTable> attacker_results, int dst_as_number, int filtering_mode) {
-    return 1;
-  }
+  // // Map<Integer, shared_ptr<RoutingTable> >* Dijekstra_avichai(int dst_as_number, int
+  // // attacker_as_number, int hops, boolean filter_by_length) const;
+  // double analyze_attacker_success(
+  //     Map<Integer, RoutingTable> attacker_results, int dst_as_number, int filtering_mode) {
+  //   return 1;
+  // }
 }

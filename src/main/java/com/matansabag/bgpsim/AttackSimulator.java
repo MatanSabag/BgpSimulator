@@ -3,9 +3,6 @@ package com.matansabag.bgpsim;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Table;
-import com.matansabag.bgpsim.AS.RIR;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +18,7 @@ public class AttackSimulator {
 
   AttackSimulator(BGPGraph graph){
     this.allAsns = graph.get_all_ases().stream().map(AS::number).collect(Collectors.toSet());
-    this.gp = new GraphProcessor(graph, RIR.ALL, RIR.ALL, false);
+    this.gp = new GraphProcessor(graph);
   }
 
   public void simulate(Map<Integer, Long> reflectors, Set<Integer> dotsServers, Set<Integer> victims) {

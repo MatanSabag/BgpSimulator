@@ -2,7 +2,6 @@ package com.matansabag.bgpsim;
 
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
-import com.matansabag.bgpsim.AS.RIR;
 import com.matansabag.bgpsim.BGPGraph.BGPGraphBuilder;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -31,7 +30,7 @@ public class BgpMain {
             .withKASExtraRelationshipsCaidaFile(kASExtraRelationshipsCaidaFile)
             .withKVantagePointsFile(kVantagePointsFile)
             .build();
-    GraphProcessor gp = new GraphProcessor(graph, RIR.ALL, RIR.ALL, false);
+    GraphProcessor gp = new GraphProcessor(graph);
     return gp;
   }
 
@@ -46,7 +45,7 @@ public class BgpMain {
             .withKASExtraRelationshipsCaidaFile(kASExtraRelationshipsCaidaFile)
             .withKVantagePointsFile(kVantagePointsFile)
             .build();
-    GraphProcessor gp = new GraphProcessor(graph, RIR.ALL, RIR.ALL, false);
+    GraphProcessor gp = new GraphProcessor(graph);
     Set<Integer> destinations = new HashSet<>(Arrays.asList(1, 5));
     Table<Integer, Integer, Route> integerIntegerRouteTable = gp.pathsToDestinations(destinations);
     Table<Integer, Integer, Route> integerIntegerRouteTable1 = gp.completeRoutingMap();
