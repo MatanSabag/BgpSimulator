@@ -4,6 +4,10 @@ import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_CUSTOMER;
 import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_PEER;
 import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_PROVIDER;
 
+
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.matansabag.bgpsim.AS.RIR;
@@ -18,6 +22,9 @@ import java.util.Queue;
 import java.util.Set;
 
 public class GraphProcessor {
+
+  public final LoadingCache<Integer, Map<Integer, RoutingTable>> cache;
+
   enum PATH_TYPE {
     LEGITIMATE,
     MALICIOUS
@@ -53,6 +60,13 @@ public class GraphProcessor {
     this.victims_region_ = victims_region;
     this.filter_two_neighbours_ = filter_two_neighbours;
     RoutingTable.set_sorted_ases(sorted_ases_);
+
+    this.cache = Caffeine
+        .newBuilder()
+        .initialCapacity(400)
+        .maximumSize(400)
+        .build(key -> GraphProcessor.pathsToDestStatic(key, graph_, filter_two_neighbours_));
+
   }
 
   Table<Integer, Integer, Route> completeRoutingMap() {
@@ -76,7 +90,7 @@ public class GraphProcessor {
     return sourceToDestRoutes;
   }
 
-  Map<Integer, RoutingTable> pathsToDest(int dest_as_number) {
+  static Map<Integer, RoutingTable> pathsToDestStatic(int dest_as_number, BGPGraph graph_, boolean filter_two_neighbours_) {
     Queue<Integer> q = new LinkedList<>();
     Map<Integer, RoutingTable> route_tables = new HashMap<>();
     Set<Integer> in_queue = new HashSet<>();
@@ -188,6 +202,20 @@ public class GraphProcessor {
       }
     }
     return route_tables;
+  }
+
+  Map<Integer, RoutingTable> pathsToDest(Integer dest_as_number) {
+    try {
+      return cache.get(dest_as_number);
+    } catch (Exception e){
+      throw new RuntimeException(e);
+    }
+  }
+
+  Route getPath(Integer from, Integer to){
+    Map<Integer, RoutingTable> integerRoutingTableMap = pathsToDest(to);
+    RoutingTable routingTable = integerRoutingTableMap.get(from);
+    return routingTable == null ?  null : routingTable.get_my_route_or_null(to);
   }
 
   Map<Integer, RoutingTable> Dijekstra(

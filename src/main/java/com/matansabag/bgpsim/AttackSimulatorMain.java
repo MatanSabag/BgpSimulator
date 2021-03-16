@@ -33,11 +33,13 @@ public class AttackSimulatorMain {
     Set<Integer> dots = getTier1Ases(graph);
     AttackSimulator sim = new AttackSimulator(graph);
     sim.simulate(getPotentialReflectors(), dots, getVictims());
-
+    //
     // List<Integer> allAsns = graph.get_all_ases().stream().map(AS::number)
     //     .collect(Collectors.toList());
     // AttackSimulator sim = new AttackSimulator(graph);
-    // sim.simulate(getPotentialReflectors(), new HashSet<>(pickNRandomElements(allAsns, allAsns.size() / 3)), getVictims());
+    // int i = 3000;
+    // System.out.println("Choosing randomly " + i + " items");
+    // sim.simulate(getPotentialReflectors(), new HashSet<>(pickNRandomElements(allAsns, i)), getVictims());
   }
 
   public static <E> List<E> pickNRandomElements(List<E> list, int n, Random r) {
