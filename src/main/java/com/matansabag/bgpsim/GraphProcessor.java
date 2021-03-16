@@ -81,18 +81,17 @@ public class GraphProcessor {
     return sourceToDestRoutes;
   }
 
-  static Map<Integer, RoutingTable> pathsToDestStatic(int dest_as_number, BGPGraph graph_) {
+  static Map<Integer, RoutingTable> pathsToDestStatic(Integer dest_as_number, BGPGraph graph_) {
     Queue<Integer> q = new LinkedList<>();
     Map<Integer, RoutingTable> route_tables = new HashMap<>();
     Set<Integer> in_queue = new HashSet<>();
 
     // insert the destination to processing queue
-    route_tables.put(
-        dest_as_number, new RoutingTable(dest_as_number, graph_, false, true));
+    route_tables.put(dest_as_number, new RoutingTable(dest_as_number, graph_, false, true));
     in_queue.add(dest_as_number);
     q.add(dest_as_number);
     while (!q.isEmpty()) {
-      int current = q.peek();
+      Integer current = q.peek();
       AS currAS = graph_.get(current);
       q.poll();
       in_queue.remove(current);
@@ -113,7 +112,7 @@ public class GraphProcessor {
 
         for (Integer customer : currAS.customers()) {
 
-          if ((customer == dest_as_number)) {
+          if ((customer.equals(dest_as_number))) {
             continue;
           }
           if (!route_tables.containsKey(customer)) {
@@ -145,7 +144,7 @@ public class GraphProcessor {
 
         for (Integer peer : currAS.peers()) {
 
-          if ((peer == dest_as_number)) {
+          if ((peer.equals(dest_as_number))) {
             continue;
           }
           if (!route_tables.containsKey(peer)) {
@@ -176,7 +175,7 @@ public class GraphProcessor {
         // cout << "NOT Discarding the opt attribute\n";
 
         for (Integer provider : currAS.providers()) {
-          if ((provider == dest_as_number)) {
+          if ((provider.equals(dest_as_number))) {
             continue;
           }
           if (!route_tables.containsKey(provider)) {
