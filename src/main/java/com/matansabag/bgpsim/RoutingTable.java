@@ -19,29 +19,29 @@ public class RoutingTable {
     ADVERTISE_TO_PROVIDER
   }
 
-  private final int as_number_;
+  private final Integer as_number_;
   private final BGPGraph graph_;
   private final int my_percentile_;
   private final RouteFilter filter_;
   private final Map<Integer, List<Route>> routing_table_;
-  private final Map<Integer, Boolean> heard_legitimate_path_;
+  // private final Map<Integer, Boolean> heard_legitimate_path_;
   // dst as_number -> provider AS -> route
 
-  Map<Integer, Map<Integer, Route>> alt_routes_ = new HashMap<>();
+  private final Map<Integer, Map<Integer, Route>> alt_routes_ = new HashMap<>();
   private static SortedASVector kSortedAses = null;
 
-  public RoutingTable(int as_number, BGPGraph graph, boolean filter_two_neighbours) {
+  public RoutingTable(Integer as_number, BGPGraph graph, boolean filter_two_neighbours) {
     this(as_number, graph, filter_two_neighbours, false);
   }
 
   public RoutingTable(
-      int as_number, BGPGraph graph, boolean filter_two_neighbours, boolean is_real_dst) {
+      Integer as_number, BGPGraph graph, boolean filter_two_neighbours, boolean is_real_dst) {
     this.as_number_ = as_number;
     this.graph_ = graph;
     this.my_percentile_ = kSortedAses.get_as_rank_group(as_number_);
     this.filter_ = new RouteFilter(graph, kSortedAses, filter_two_neighbours);
     this.routing_table_ = new HashMap<>();
-    this.heard_legitimate_path_ = new HashMap<>();
+    // this.heard_legitimate_path_ = new HashMap<>();
     if (is_real_dst) {
       List<Integer> self_route = new ArrayList<>();
       self_route.add(as_number_);
@@ -54,14 +54,14 @@ public class RoutingTable {
     }
   }
 
-  public void announce_spoofed_route(Route spoofed_route) {
-    // TODO IGNORE FOR NOW
-  }
+  // public void announce_spoofed_route(Route spoofed_route) {
+  //   // TODO IGNORE FOR NOW
+  // }
 
   public boolean consider_new_route(Route new_route, Link_Type link_type) {
-    int dst_as = new_route.getDestAS();
+    Integer dst_as = new_route.getDestAS();
 
-    update_legitimate_route_table(dst_as, new_route);
+    // update_legitimate_route_table(dst_as, new_route);
 
     // Discard routes with the BGP opt attribute
     if (((graph_.get(as_number_)).optattr_discard_prefix()) && new_route.optattr_protected) {
@@ -117,13 +117,13 @@ public class RoutingTable {
           && existing_route.from_same_neighbor(appended_route)) {
         // Old route no longer exists as it's been overwritten
         it2.set(i, appended_route);
-        int neighbor = appended_route.getNeighbor();
+        Integer neighbor = appended_route.getNeighbor();
 
         // maybe one of the neighbors has offered a better route
         neigh2route = alt_routes_.get(dst_as);
         for (Map.Entry<Integer, Route> p : neigh2route.entrySet()) {
-          int altneighbor = p.getKey();
-          if (altneighbor == neighbor) {
+          Integer altneighbor = p.getKey();
+          if (altneighbor.equals(neighbor)) {
             continue;
           }
           Route altroute = p.getValue();
@@ -137,7 +137,7 @@ public class RoutingTable {
     return ret;
   }
 
-  public Route get_route_or_null(int dst_as, ADVERTISEMENT_DEST neighbour) {
+  public Route get_route_or_null(Integer dst_as, ADVERTISEMENT_DEST neighbour) {
     List<Route> routes = routing_table_.get(dst_as);
     if (routes == null || routes.isEmpty()) { // TODO check?
       return null;
@@ -145,7 +145,7 @@ public class RoutingTable {
     return routes.get(neighbour.ordinal());
   }
 
-  public Route get_my_route_or_null(int dst_as_number) {
+  public Route get_my_route_or_null(Integer dst_as_number) {
     Route best = null;
     for (int i = 0; i < 3; i++) {
       Route next = get_route_or_null(dst_as_number, ADVERTISEMENT_DEST.values()[i]);
@@ -160,26 +160,26 @@ public class RoutingTable {
     return best;
   }
 
-  public boolean received_only_malicious(int dst_as_number) {
-    if (!heard_legitimate_path_.containsKey(dst_as_number)) return true;
-    return !heard_legitimate_path_.get(dst_as_number);
-  }
+  // public boolean received_only_malicious(int dst_as_number) {
+  //   if (!heard_legitimate_path_.containsKey(dst_as_number)) return true;
+  //   return !heard_legitimate_path_.get(dst_as_number);
+  // }
 
-  public int size() {
-    return routing_table_.size();
-  }
+  // public int size() {
+  //   return routing_table_.size();
+  // }
 
-  public Map<Integer, List<Route>> getRT() {
-    return routing_table_;
-  }
+  // public Map<Integer, List<Route>> getRT() {
+  //   return routing_table_;
+  // }
 
   public static void set_sorted_ases(SortedASVector sorted_ases) {
     kSortedAses = sorted_ases;
   }
 
-  private void update_legitimate_route_table(int dst_as_number, Route route) {
-    if (!route.malicious()) {
-      heard_legitimate_path_.put(dst_as_number, true);
-    }
-  }
+  // private void update_legitimate_route_table(Integer dst_as_number, Route route) {
+  //   if (!route.malicious()) {
+  //     heard_legitimate_path_.put(dst_as_number, true);
+  //   }
+  // }
 }

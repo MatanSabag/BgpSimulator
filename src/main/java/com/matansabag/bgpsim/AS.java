@@ -34,7 +34,7 @@ public class AS {
   private static final int LARGE_CUSTOMERS = 250;
   private static final int MEDIUM_CUSTOMERS = 25;
 
-  private final int number;
+  private final Integer number;
   private final Set<Integer> customers = new HashSet<>();
   private final Set<Integer> peers = new HashSet<>();
   private final Set<Integer> providers = new HashSet<>();
@@ -66,11 +66,11 @@ public class AS {
     return neighbours;
   }
 
-  int number() {
+  Integer number() {
     return number;
   }
 
-  void AddCustomer(int as_number) {
+  void AddCustomer(Integer as_number) {
     if (isNeighbour(as_number)) {
       return;
     }
@@ -78,7 +78,7 @@ public class AS {
     neighbours.add(as_number);
   }
 
-  void AddPeer(int as_number) {
+  void AddPeer(Integer as_number) {
     if (isNeighbour(as_number)) {
       return;
     }
@@ -86,7 +86,7 @@ public class AS {
     neighbours.add(as_number);
   }
 
-  void AddProvider(int as_number) {
+  void AddProvider(Integer as_number) {
     if (isNeighbour(as_number)) {
       return;
     }
@@ -94,7 +94,7 @@ public class AS {
     neighbours.add(as_number);
   }
 
-  public boolean isNeighbour(int otherAs) {
+  public boolean isNeighbour(Integer otherAs) {
     return neighbours.contains(otherAs);
   }
 
