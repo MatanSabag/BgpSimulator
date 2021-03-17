@@ -1,5 +1,7 @@
 package com.matansabag.bgpsim;
 
+import static com.matansabag.bgpsim.AttackSimulatorMain.getResourceFullPath;
+
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
 import com.matansabag.bgpsim.BGPGraph.BGPGraphBuilder;
@@ -8,16 +10,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BgpMain {
-  private static String kASRelationshipsFile =
-      "/Users/matans/disco/bgp-sim/data/20190801.as-rel.txt.bakk";
-  private static String kASRegionsFile = "/Users/matans/disco/bgp-sim/data/as-numbers-1.csv";
-  private static String kASRegionsFile32bit = "/Users/matans/disco/bgp-sim/data/as-numbers-2.csv";
-  private static String kASExtraRelationshipsFile =
-      "/Users/matans/disco/bgp-sim/data/AS_link_extended.txt";
-  private static String kASExtraRelationshipsCaidaFile =
-      "/Users/matans/disco/bgp-sim/data/mlp-Dec-2014.txt";
-  private static String kVantagePointsFile =
-      "/Users/matans/disco/bgp-sim/data/vantage-points-list.txt";
+  private static String kASRelationshipsFile = getResourceFullPath("data/20190801.as-rel.txt.bakk");
+  private static String kASRegionsFile = getResourceFullPath("data/as-numbers-1.csv");
+  private static String kASRegionsFile32bit = getResourceFullPath("data/as-numbers-2.csv");
+  private static String kASExtraRelationshipsFile = getResourceFullPath("data/AS_link_extended.txt");;
+  private static String kASExtraRelationshipsCaidaFile = getResourceFullPath("data/mlp-Dec-2014.txt");
+  private static String kVantagePointsFile = getResourceFullPath("data/vantage-points-list.txt");
 
   GraphProcessor createGraphProcessor() {
     BGPGraph graph =

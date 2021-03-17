@@ -1,6 +1,10 @@
 package com.matansabag.bgpsim;
 
 import com.matansabag.bgpsim.BGPGraph.BGPGraphBuilder;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,16 +17,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class AttackSimulatorMain {
-  private static String kASRelationshipsFile =
-      "/Users/matans/disco/bgp-sim/data/20190801.as-rel.txt.bakk";
-  private static String kASRegionsFile = "/Users/matans/disco/bgp-sim/data/as-numbers-1.csv";
-  private static String kASRegionsFile32bit = "/Users/matans/disco/bgp-sim/data/as-numbers-2.csv";
-  private static String kASExtraRelationshipsFile =
-      "/Users/matans/disco/bgp-sim/data/AS_link_extended.txt";
-  private static String kASExtraRelationshipsCaidaFile =
-      "/Users/matans/disco/bgp-sim/data/mlp-Dec-2014.txt";
-  private static String kVantagePointsFile =
-      "/Users/matans/disco/bgp-sim/data/vantage-points-list.txt";
+  private static final String kASRegionsFile = getResourceFullPath("data/as-numbers-1.csv");
+  private static final String kASRegionsFile32bit = getResourceFullPath("data/as-numbers-2.csv");
+  private static final String kASExtraRelationshipsFile = getResourceFullPath("data/AS_link_extended.txt");;
+  private static final String kASExtraRelationshipsCaidaFile = getResourceFullPath("data/mlp-Dec-2014.txt");
+  private static final String kVantagePointsFile = getResourceFullPath("data/vantage-points-list.txt");
   private static boolean isMiniExample = false;
 
 
@@ -75,16 +74,16 @@ public class AttackSimulatorMain {
       return map;
     }
     Map<Integer, Long> attackers =
-        new ShodanParser("/Users/matans/Downloads/shodan-export.json").parseShodanParser();
+        new ShodanParser(getResourceFullPath("data/shodan-export.json")).parseShodanParser();
     attackers.values().removeIf(v -> v <= 10);
     return attackers;
   }
 
-  private static BGPGraph createBgpGraph() {
+  private static BGPGraph createBgpGraph() throws URISyntaxException {
     String relationsFile =
         isMiniExample
-            ? "/Users/matans/disco/bgp-sim/data/20190801.as-rel.txt"
-            : "/Users/matans/disco/bgp-sim/data/20190801.as-rel.txt.bakk";
+            ? getResourceFullPath("data/20190801.as-rel.txt")
+            : getResourceFullPath("data/20190801.as-rel.txt.bakk");
     return new BGPGraphBuilder()
         .withAdditionalLinks(false)
         .withInfile(relationsFile)
@@ -94,6 +93,22 @@ public class AttackSimulatorMain {
         .withKASExtraRelationshipsCaidaFile(kASExtraRelationshipsCaidaFile)
         .withKVantagePointsFile(kVantagePointsFile)
         .build();
+  }
+
+  public static String getResourceFullPath(String resourceName) {
+    URL res = AttackSimulatorMain.class.getClassLoader().getResource(resourceName);
+    if(res == null) {
+      System.out.println("ERROR FOR RESOURCE " + resourceName);
+      return "";
+    }
+    File file = null;
+    try {
+      file = Paths.get(res.toURI()).toFile();
+    } catch (URISyntaxException e) {
+      System.out.println("ERROR FOR RESOURCE " + resourceName);
+      return "";
+    }
+    return file.getAbsolutePath();
   }
 
   private static Set<Integer> getTier1Ases(BGPGraph graph) {
