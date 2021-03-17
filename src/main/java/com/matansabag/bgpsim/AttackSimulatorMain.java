@@ -19,26 +19,29 @@ import java.util.stream.Collectors;
 public class AttackSimulatorMain {
   private static final String kASRegionsFile = getResourceFullPath("data/as-numbers-1.csv");
   private static final String kASRegionsFile32bit = getResourceFullPath("data/as-numbers-2.csv");
-  private static final String kASExtraRelationshipsFile = getResourceFullPath("data/AS_link_extended.txt");;
-  private static final String kASExtraRelationshipsCaidaFile = getResourceFullPath("data/mlp-Dec-2014.txt");
-  private static final String kVantagePointsFile = getResourceFullPath("data/vantage-points-list.txt");
+  private static final String kASExtraRelationshipsFile =
+      getResourceFullPath("data/AS_link_extended.txt");;
+  private static final String kASExtraRelationshipsCaidaFile =
+      getResourceFullPath("data/mlp-Dec-2014.txt");
+  private static final String kVantagePointsFile =
+      getResourceFullPath("data/vantage-points-list.txt");
   private static boolean isMiniExample = false;
-
 
   public static void main(String[] args) throws Exception {
     System.out.println("Starting attack simulator");
     BGPGraph graph = createBgpGraph();
-
-    Set<Integer> dots = getTier1Ases(graph);
-    AttackSimulator sim = new AttackSimulator(graph);
-    sim.simulate(getPotentialReflectors(), dots, getVictims());
     //
-    // List<Integer> allAsns = graph.get_all_ases().stream().map(AS::number)
-    //     .collect(Collectors.toList());
+    // Set<Integer> dots = getTier1Ases(graph);
     // AttackSimulator sim = new AttackSimulator(graph);
-    // int i = 3000;
-    // System.out.println("Choosing randomly " + i + " items");
-    // sim.simulate(getPotentialReflectors(), new HashSet<>(pickNRandomElements(allAsns, i)), getVictims());
+    // sim.simulate(getPotentialReflectors(), dots, getVictims());
+    //
+    List<Integer> allAsns =
+        graph.get_all_ases().stream().map(AS::number).collect(Collectors.toList());
+    AttackSimulator sim = new AttackSimulator(graph);
+    int i = 1500;
+    System.out.println("Choosing randomly " + i + " items");
+    sim.simulate(
+        getPotentialReflectors(), new HashSet<>(pickNRandomElements(allAsns, i)), getVictims());
   }
 
   public static <E> List<E> pickNRandomElements(List<E> list, int n, Random r) {
@@ -46,10 +49,9 @@ public class AttackSimulatorMain {
 
     if (length < n) return null;
 
-    //We don't need to shuffle the whole list
-    for (int i = length - 1; i >= length - n; --i)
-    {
-      Collections.swap(list, i , r.nextInt(i + 1));
+    // We don't need to shuffle the whole list
+    for (int i = length - 1; i >= length - n; --i) {
+      Collections.swap(list, i, r.nextInt(i + 1));
     }
     return list.subList(length - n, length);
   }
@@ -97,7 +99,7 @@ public class AttackSimulatorMain {
 
   public static String getResourceFullPath(String resourceName) {
     URL res = AttackSimulatorMain.class.getClassLoader().getResource(resourceName);
-    if(res == null) {
+    if (res == null) {
       System.out.println("ERROR FOR RESOURCE " + resourceName);
       return "";
     }

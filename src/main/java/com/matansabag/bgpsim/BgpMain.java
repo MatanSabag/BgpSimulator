@@ -13,8 +13,10 @@ public class BgpMain {
   private static String kASRelationshipsFile = getResourceFullPath("data/20190801.as-rel.txt.bakk");
   private static String kASRegionsFile = getResourceFullPath("data/as-numbers-1.csv");
   private static String kASRegionsFile32bit = getResourceFullPath("data/as-numbers-2.csv");
-  private static String kASExtraRelationshipsFile = getResourceFullPath("data/AS_link_extended.txt");;
-  private static String kASExtraRelationshipsCaidaFile = getResourceFullPath("data/mlp-Dec-2014.txt");
+  private static String kASExtraRelationshipsFile =
+      getResourceFullPath("data/AS_link_extended.txt");;
+  private static String kASExtraRelationshipsCaidaFile =
+      getResourceFullPath("data/mlp-Dec-2014.txt");
   private static String kVantagePointsFile = getResourceFullPath("data/vantage-points-list.txt");
 
   GraphProcessor createGraphProcessor() {

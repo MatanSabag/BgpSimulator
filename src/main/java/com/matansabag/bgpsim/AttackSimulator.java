@@ -16,19 +16,22 @@ public class AttackSimulator {
   private int numSuccess = 0;
   private int numFailed = 0;
 
-  AttackSimulator(BGPGraph graph){
+  AttackSimulator(BGPGraph graph) {
     this.allAsns = graph.get_all_ases().stream().map(AS::number).collect(Collectors.toSet());
     this.gp = new GraphProcessor(graph);
   }
 
-  public void simulate(Map<Integer, Long> reflectors, Set<Integer> dotsServers, Set<Integer> victims) {
+  public void simulate(
+      Map<Integer, Long> reflectors, Set<Integer> dotsServers, Set<Integer> victims) {
     System.out.println("Starting attack simulation");
     StopWatch watch = new StopWatch();
     watch.start();
-    Preconditions.checkArgument(allAsns.containsAll(victims), "Not all victims are in the graph. Aborting simulation");
+    Preconditions.checkArgument(
+        allAsns.containsAll(victims), "Not all victims are in the graph. Aborting simulation");
     filterExistingReflectors(reflectors);
     System.out.println("Calculating paths from all ASes to reflectors and dots-servers");
-    // Table<Integer, Integer, Route> paths = gp.pathsToDestinations(Sets.union(reflectors.keySet(), dotsServers));
+    // Table<Integer, Integer, Route> paths = gp.pathsToDestinations(Sets.union(reflectors.keySet(),
+    // dotsServers));
     Multiset<Integer> integers = simulate0(reflectors.keySet(), victims, dotsServers, gp);
     System.out.println(numSuccess);
     System.out.println(numFailed);
@@ -39,7 +42,8 @@ public class AttackSimulator {
     System.out.println("Simulation took " + watch.getTime(TimeUnit.SECONDS) + " seconds.");
   }
 
-  private Multiset<Integer> simulate0(Set<Integer> reflectors, Set<Integer> victims, Set<Integer> dotsServers, GraphProcessor gp){
+  private Multiset<Integer> simulate0(
+      Set<Integer> reflectors, Set<Integer> victims, Set<Integer> dotsServers, GraphProcessor gp) {
     Multiset<Integer> res = HashMultiset.create();
     for (Integer reflector : reflectors) {
       for (Integer attacker : allAsns) {
@@ -61,13 +65,14 @@ public class AttackSimulator {
     int origSize = reflectors.size();
     reflectors.entrySet().removeIf(e -> !allAsns.contains(e.getKey()));
     int afterFilterSize = reflectors.size();
-    if(origSize == afterFilterSize){
+    if (origSize == afterFilterSize) {
       return;
     }
-    System.out.println(String.format("There were %d reflectors originally. And %d were left after filtering only reflectors that exists in the graph.", origSize, afterFilterSize));
+    System.out.println(
+        String.format(
+            "There were %d reflectors originally. And %d were left after filtering only reflectors that exists in the graph.",
+            origSize, afterFilterSize));
   }
-
-
 
   // -1 - irrelevant
   // -2 - missing route attacker to reflector
@@ -81,7 +86,8 @@ public class AttackSimulator {
     // System.out.println("attacker = " + attacker + " reflector = " + reflector + " victim = " +
     // victim);
     // String tripletStr =
-    //     "( attacker = " + attacker + " , reflector = " + reflector + " , victim = " + victim + " )";
+    //     "( attacker = " + attacker + " , reflector = " + reflector + " , victim = " + victim + "
+    // )";
     if (attacker.equals(victim) || attacker.equals(reflector)) {
       // System.out.println("SKIP: Attacker is same as reflector or victim " + tripletStr);
       return -1;
@@ -128,10 +134,9 @@ public class AttackSimulator {
       // System.out.println("SPOOFED: (SAME LAST HOP FOR ALL DOTS SERVERS) " + tripletStr);
       return 0;
     } else {
-      // System.out.println("MITIGATED: (DIFFERENT LAST HOP FOR " + mitigationAs + " ) " + tripletStr);
+      // System.out.println("MITIGATED: (DIFFERENT LAST HOP FOR " + mitigationAs + " ) " +
+      // tripletStr);
       return mitigationAs;
     }
   }
-
-
 }

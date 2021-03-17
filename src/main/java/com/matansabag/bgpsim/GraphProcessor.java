@@ -4,7 +4,6 @@ import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_CUSTOMER;
 import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_PEER;
 import static com.matansabag.bgpsim.BGPGraph.Link_Type.LINK_TO_PROVIDER;
 
-
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.collect.HashBasedTable;
@@ -48,17 +47,16 @@ public class GraphProcessor {
     this.graph_ = graph;
     // mutable mutex lock_;
     List<Integer> all_ases_ = graph_.get_all_ases(RIR.ALL);
-    SortedASVector sorted_ases_ = new SortedASVector(all_ases_, COMPARISON_METHOD.BY_CUSTOMERS,
-        graph.get_plain());
+    SortedASVector sorted_ases_ =
+        new SortedASVector(all_ases_, COMPARISON_METHOD.BY_CUSTOMERS, graph.get_plain());
     // this.attackers_region_ = attackers_region;
     // this.victims_region_ = victims_region;
     RoutingTable.set_sorted_ases(sorted_ases_);
-    this.cache = Caffeine
-        .newBuilder()
-        .initialCapacity(400)
-        .maximumSize(400)
-        .build(key -> GraphProcessor.pathsToDestStatic(key, graph_));
-
+    this.cache =
+        Caffeine.newBuilder()
+            .initialCapacity(400)
+            .maximumSize(400)
+            .build(key -> GraphProcessor.pathsToDestStatic(key, graph_));
   }
 
   Table<Integer, Integer, Route> completeRoutingMap() {
@@ -197,15 +195,15 @@ public class GraphProcessor {
   Map<Integer, RoutingTable> pathsToDest(Integer dest_as_number) {
     try {
       return cache.get(dest_as_number);
-    } catch (Exception e){
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  Route getPath(Integer from, Integer to){
+  Route getPath(Integer from, Integer to) {
     Map<Integer, RoutingTable> integerRoutingTableMap = pathsToDest(to);
     RoutingTable routingTable = integerRoutingTableMap.get(from);
-    return routingTable == null ?  null : routingTable.get_my_route_or_null(to);
+    return routingTable == null ? null : routingTable.get_my_route_or_null(to);
   }
 
   // // Map<Integer, shared_ptr<RoutingTable> >* Dijekstra_avichai(int dst_as_number, int
