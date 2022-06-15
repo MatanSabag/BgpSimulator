@@ -17,7 +17,15 @@ If you find this tool useful in your research, please consider citing our papers
 
 ### What is BGPSimulator and why should you use it?
 
-TBD
+BGP simulator is an application that provides several features based on BGP information. 
+
+First, given raw data of BGP Graph from CAIDA, BGP Simulator is able to parse it and generate an in-memory, object-oriented representation so users may process it as they desire.
+
+In addition, BGP Simulator is able to calculate BGP routes between ASes according to Gao's valley-free property, with shorter routes being used as a tie-breaker. 
+
+The BGP Simulator is written in Java and uses efficient techniques such as parallelism and caching. However, bear in mind that as more routes are calculated, the more memory will be consumed, so a full graph calculation ( O(N^2) where N is ~60K) is typically not practicable to store locally in memory.
+
+BGP Simulator is heavily influenced by [disco](https://github.com/yossigi/disco) tool.
 
 This reserach was done as part of the <strong>DEEPNESS Lab</strong>
 <br>Come and visit us! https://deepness-lab.org/
